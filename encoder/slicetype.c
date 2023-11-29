@@ -6,6 +6,7 @@
  * Authors: Fiona Glaser <fiona@x264.com>
  *          Loren Merritt <lorenm@u.washington.edu>
  *          Dylan Yudaken <dyudaken@gmail.com>
+ *          lvl1337 <REDACTED>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -459,7 +460,7 @@ void x264_weights_analyse( x264_t *h, x264_frame_t *fenc, x264_frame_t *ref, int
         else
             SET_WEIGHT( weights[plane], 1, minscale, mindenom, minoff );
 
-        if( h->param.analyse.i_weighted_pred == X264_WEIGHTP_FAKE && weights[0].weightfn && !plane )
+        if( weights[0].weightfn && !plane )
             fenc->f_weighted_cost_delta[i_delta_index] = (float)minscore / origscore;
     }
 
@@ -1030,8 +1031,8 @@ static void macroblock_tree_finish( x264_t *h, x264_frame_t *frame, float averag
 {
     int fps_factor = round( CLIP_DURATION(average_duration) / CLIP_DURATION(frame->f_duration) * 256 / MBTREE_PRECISION );
     float weightdelta = 0.0;
-    if( ref0_distance && frame->f_weighted_cost_delta[ref0_distance-1] > 0 )
-        weightdelta = (1.0 - frame->f_weighted_cost_delta[ref0_distance-1]);
+    if (ref0_distance && frame->f_weighted_cost_delta[ref0_distance - 1] > 0)
+        weightdelta = (1.0 - frame->f_weighted_cost_delta[ref0_distance - 1]) * 10.0f * h->param.rc.f_fade_compensate;
 
     /* Allow the strength to be adjusted via qcompress, since the two
      * concepts are very similar. */

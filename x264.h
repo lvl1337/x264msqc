@@ -6,6 +6,7 @@
  * Authors: Laurent Aimar <fenrir@via.ecp.fr>
  *          Loren Merritt <lorenm@u.washington.edu>
  *          Fiona Glaser <fiona@x264.com>
+ *          lvl1337 <REDACTED>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +46,7 @@ extern "C" {
 
 #include "x264_config.h"
 
-#define X264_BUILD 164
+#define X264_BUILD 0
 
 #ifdef _WIN32
 #   define X264_DLL_IMPORT __declspec(dllimport)
@@ -378,6 +379,8 @@ typedef struct x264_param_t
 
     int         b_interlaced;
     int         b_constrained_intra;
+    int         i_info;
+    int         i_dex;
 
     int         i_cqm_preset;
     char        *psz_cqm_file;      /* filename (in UTF-8) of CQM file, JM format */
@@ -460,6 +463,7 @@ typedef struct x264_param_t
 
         int         i_aq_mode;      /* psy adaptive QP. (X264_AQ_*) */
         float       f_aq_strength;
+        float       f_fade_compensate; /* Give more bits to fades. */
         int         b_mb_tree;      /* Macroblock-tree ratecontrol. */
         int         i_lookahead;
 

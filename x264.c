@@ -9,6 +9,7 @@
  *          Fiona Glaser <fiona@x264.com>
  *          Kieran Kunhya <kieran@kunhya.com>
  *          Henrik Gramner <henrik@gramner.com>
+ *          lvl1337 <REDACTED>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -483,7 +484,7 @@ static void help( x264_param_t *defaults, int longhelp )
 #define H0 printf
 #define H1 if( longhelp >= 1 ) printf
 #define H2 if( longhelp == 2 ) printf
-    H0( "x264 core:%d%s\n"
+    H0( "x264 MSQC core:%d%s\n"
         "Syntax: x264 [options] -o outfile infile\n"
         "\n"
         "Infile can be raw (in which case resolution is required),\n"
@@ -751,6 +752,8 @@ static void help( x264_param_t *defaults, int longhelp )
         "                                  - 3: Auto-variance AQ with bias to dark scenes\n", defaults->rc.i_aq_mode );
     H1( "      --aq-strength <float>   Reduces blocking and blurring in flat and\n"
         "                              textured areas. [%.1f]\n", defaults->rc.f_aq_strength );
+    H1( "      --fade-compensate <float> Allocate more bits to fades [%.1f]\n", defaults->rc.f_fade_compensate );
+    H2( "                                  Approximate sane range: 0.0 - 1.0\n" );
     H1( "\n" );
     H0( "  -p, --pass <integer>        Enable multipass ratecontrol\n"
         "                                  - 1: First pass, creates stats file\n"
@@ -794,6 +797,9 @@ static void help( x264_param_t *defaults, int longhelp )
         "                                  - esa: exhaustive search\n"
         "                                  - tesa: hadamard exhaustive search (slow)\n" );
     else H1( "                                  - dia, hex, umh\n" );
+    H2( "      --dex                   In hexagon search, performs diamond prior to hexagon.\n"
+        "                              This performs vertical search not performed by hexagon with\n"
+        "                              extremely little speed penalty.\n" );
     H2( "      --merange <integer>     Maximum motion vector search range [%d]\n", defaults->analyse.i_me_range );
     H2( "      --mvrange <integer>     Maximum motion vector length [-1 (auto)]\n" );
     H2( "      --mvrange-thread <int>  Minimum buffer between threads [-1 (auto)]\n" );
@@ -916,6 +922,7 @@ static void help( x264_param_t *defaults, int longhelp )
     H1( "      --input-res <intxint>   Specify input resolution (width x height)\n" );
     H1( "      --index <string>        Filename for input index file\n" );
     H0( "      --sar width:height      Specify Sample Aspect Ratio\n" );
+    H0( "      --no-info               Don't write information about settings used in encode\n" );
     H0( "      --fps <float|rational>  Specify framerate\n" );
     H0( "      --seek <integer>        First frame to encode\n" );
     H0( "      --frames <integer>      Maximum number of frames to encode\n" );
@@ -1074,6 +1081,8 @@ static struct option long_options[] =
     { "no-weightb",           no_argument,       NULL, 0 },
     { "weightp",              required_argument, NULL, 0 },
     { "me",                   required_argument, NULL, 0 },
+    { "dex",                  no_argument,       NULL, 0 },
+    { "no-dex",               no_argument,       NULL, 0 },
     { "merange",              required_argument, NULL, 0 },
     { "mvrange",              required_argument, NULL, 0 },
     { "mvrange-thread",       required_argument, NULL, 0 },
@@ -1092,6 +1101,7 @@ static struct option long_options[] =
     { "no-dct-decimate",      no_argument,       NULL, 0 },
     { "aq-strength",          required_argument, NULL, 0 },
     { "aq-mode",              required_argument, NULL, 0 },
+    { "fade-compensate",      required_argument, NULL, 0 },
     { "deadzone-inter",       required_argument, NULL, 0 },
     { "deadzone-intra",       required_argument, NULL, 0 },
     { "level",                required_argument, NULL, 0 },
@@ -1154,6 +1164,8 @@ static struct option long_options[] =
     { "transfer",             required_argument, NULL, 0 },
     { "colormatrix",          required_argument, NULL, 0 },
     { "chromaloc",            required_argument, NULL, 0 },
+    { "info",                 no_argument,       NULL, 0 },
+    { "no-info",              no_argument,       NULL, 0 },
     { "force-cfr",            no_argument,       NULL, 0 },
     { "tcfile-in",            required_argument, NULL, OPT_TCFILE_IN },
     { "tcfile-out",           required_argument, NULL, OPT_TCFILE_OUT },
