@@ -1093,8 +1093,6 @@ REALIGN_STACK int x264_param_parse( x264_param_t *p, const char *name, const cha
         p->i_keyint_min = atoi(value);
         if( p->i_keyint_max < p->i_keyint_min )
             p->i_keyint_max = p->i_keyint_min;
-        p->i_keyint_min = round(p->i_fps_num / p->i_fps_den);
-        p->i_keyint_max = (p->i_keyint_min * 10);
         if ( p->i_keyint_max > 300 )
              p->i_keyint_max = 300;
     }
