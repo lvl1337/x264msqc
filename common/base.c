@@ -384,7 +384,7 @@ REALIGN_STACK void x264_param_default( x264_param_t *param )
 
     /* Encoder parameters */
     param->i_frame_reference = 3;
-    param->i_keyint_max = 250;
+    param->i_keyint_max = 240;
     param->i_keyint_min = X264_KEYINT_MIN_AUTO;
     param->i_bframe = 3;
     param->i_scenecut_threshold = 20;
@@ -416,7 +416,7 @@ REALIGN_STACK void x264_param_default( x264_param_t *param )
     param->rc.f_pb_factor = 1.3;
     param->rc.i_aq_mode = X264_AQ_AUTOVARIANCE;
     param->rc.f_aq_strength = 0.8;
-    param->rc.f_fade_compensate = 0.06;
+    param->rc.f_fade_compensate = 0.28;
     param->b_open_gop = 1;
     param->rc.i_lookahead = 40;
 
@@ -428,7 +428,7 @@ REALIGN_STACK void x264_param_default( x264_param_t *param )
     param->rc.f_qblur = 0.5;
     param->rc.f_complexity_blur = 20;
     param->rc.i_zones = 0;
-    param->rc.b_mb_tree = 1;
+    param->rc.b_mb_tree = 0;
 
     /* Log */
     param->pf_log = x264_log_default;
@@ -441,7 +441,7 @@ REALIGN_STACK void x264_param_default( x264_param_t *param )
                          | X264_ANALYSE_PSUB16x16 | X264_ANALYSE_BSUB16x16;
     param->analyse.i_direct_mv_pred = X264_DIRECT_PRED_SPATIAL;
     param->analyse.i_me_method = X264_ME_HEX;
-    param->i_dex = 0;
+    param->i_dex = 1;
     param->analyse.f_psy_rd = 1.0;
     param->analyse.b_psy = 1;
     param->analyse.f_psy_trellis = 0;
@@ -457,7 +457,7 @@ REALIGN_STACK void x264_param_default( x264_param_t *param )
     param->analyse.i_weighted_pred = X264_WEIGHTP_SMART;
     param->analyse.b_dct_decimate = 1;
     param->analyse.b_transform_8x8 = 1;
-    param->analyse.i_trellis = 1;
+    param->analyse.i_trellis = 2;
     param->analyse.i_luma_deadzone[0] = 21;
     param->analyse.i_luma_deadzone[1] = 11;
     param->analyse.b_psnr = 0;
@@ -545,6 +545,7 @@ static int param_apply_preset( x264_param_t *param, const char *preset )
         param->analyse.b_mixed_references = 0;
         param->i_frame_reference = 2;
         param->analyse.i_subpel_refine = 4;
+		param->analyse.i_trellis = 1;
         param->analyse.i_weighted_pred = X264_WEIGHTP_SIMPLE;
         param->rc.i_lookahead = 20;
     }
@@ -552,6 +553,7 @@ static int param_apply_preset( x264_param_t *param, const char *preset )
     {
         param->i_frame_reference = 2;
         param->analyse.i_subpel_refine = 6;
+		param->analyse.i_trellis = 1;
         param->analyse.i_weighted_pred = X264_WEIGHTP_SIMPLE;
         param->rc.i_lookahead = 30;
     }
@@ -564,7 +566,6 @@ static int param_apply_preset( x264_param_t *param, const char *preset )
         param->analyse.i_subpel_refine = 8;
         param->i_frame_reference = 5;
         param->analyse.i_direct_mv_pred = X264_DIRECT_PRED_AUTO;
-        param->analyse.i_trellis = 2;
         param->rc.i_lookahead = 50;
     }
     else if( !strcasecmp( preset, "slower" ) )
@@ -575,7 +576,6 @@ static int param_apply_preset( x264_param_t *param, const char *preset )
         param->i_bframe_adaptive = X264_B_ADAPT_TRELLIS;
         param->analyse.i_direct_mv_pred = X264_DIRECT_PRED_AUTO;
         param->analyse.inter |= X264_ANALYSE_PSUB8x8;
-        param->analyse.i_trellis = 2;
         param->rc.i_lookahead = 60;
     }
     else if( !strcasecmp( preset, "veryslow" ) )
@@ -587,7 +587,6 @@ static int param_apply_preset( x264_param_t *param, const char *preset )
         param->i_bframe_adaptive = X264_B_ADAPT_TRELLIS;
         param->analyse.i_direct_mv_pred = X264_DIRECT_PRED_AUTO;
         param->analyse.inter |= X264_ANALYSE_PSUB8x8;
-        param->analyse.i_trellis = 2;
         param->i_bframe = 8;
         param->rc.i_lookahead = 60;
     }
@@ -601,10 +600,73 @@ static int param_apply_preset( x264_param_t *param, const char *preset )
         param->analyse.i_direct_mv_pred = X264_DIRECT_PRED_AUTO;
         param->analyse.inter |= X264_ANALYSE_PSUB8x8;
         param->analyse.b_fast_pskip = 0;
-        param->analyse.i_trellis = 2;
         param->i_bframe = 16;
         param->rc.i_lookahead = 60;
     }
+	else if( !strcasecmp( preset, "bdlive" ) )
+	{
+		param->analyse.i_me_method = X264_ME_TESA;
+        param->analyse.i_subpel_refine = 11;
+        param->analyse.i_me_range = 32;
+        param->i_frame_reference = 4;
+		param->b_deterministic = 0;
+		param->b_bluray_compat = 1;
+		param->i_keyint_max = 24;
+		param->analyse.i_direct_mv_pred = X264_DIRECT_PRED_AUTO;
+		param->i_bframe_pyramid = X264_B_PYRAMID_NONE;
+		param->i_bframe_adaptive = X264_B_ADAPT_TRELLIS;
+		param->analyse.f_psy_rd = 1.15;
+		param->analyse.b_fast_pskip = 0;
+		param->rc.i_vbv_max_bitrate = 40000;
+		param->rc.i_vbv_buffer_size = 30000;
+		param->i_level_idc = 41;
+		param->i_slice_count = 4;
+		param->vui.i_sar_width = 1;
+        param->vui.i_sar_height = 1;
+		param->i_width = 1920;
+		param->i_height = 1080;
+		param->i_nal_hrd = X264_NAL_HRD_VBR;
+		param->rc.i_aq_mode = X264_AQ_VARIANCE;
+        param->rc.f_aq_strength = 1.05;
+		param->analyse.i_chroma_qp_offset = -1;
+		param->rc.i_rc_method = X264_RC_ABR;
+		param->rc.i_bitrate = 25000;
+		param->i_deblocking_filter_alphac0 = -3;
+        param->i_deblocking_filter_beta = -3;
+		param->i_info = 0;
+	}
+	else if( !strcasecmp( preset, "bdanime" ) )
+	{
+		param->analyse.i_me_method = X264_ME_TESA;
+        param->analyse.i_subpel_refine = 11;
+        param->analyse.i_me_range = 24;
+        param->i_frame_reference = 4;
+		param->b_deterministic = 0;
+		param->b_bluray_compat = 1;
+		param->i_keyint_max = 24;
+		param->analyse.i_direct_mv_pred = X264_DIRECT_PRED_AUTO;
+		param->i_bframe_pyramid = X264_B_PYRAMID_NONE;
+		param->i_bframe_adaptive = X264_B_ADAPT_TRELLIS;
+		param->analyse.f_psy_rd = 0.5;
+		param->analyse.b_fast_pskip = 0;
+		param->rc.i_vbv_max_bitrate = 40000;
+		param->rc.i_vbv_buffer_size = 30000;
+		param->i_level_idc = 41;
+		param->i_slice_count = 4;
+		param->vui.i_sar_width = 1;
+        param->vui.i_sar_height = 1;
+		param->i_width = 1920;
+		param->i_height = 1080;
+		param->i_nal_hrd = X264_NAL_HRD_VBR;
+		param->rc.i_aq_mode = X264_AQ_AUTOVARIANCE_BIASED;
+        param->rc.f_aq_strength = 0.8;
+		param->analyse.i_chroma_qp_offset = -1;
+		param->rc.i_rc_method = X264_RC_ABR;
+		param->rc.i_bitrate = 15000;
+		param->i_deblocking_filter_alphac0 = -1;
+        param->i_deblocking_filter_beta = -1;
+		param->i_info = 0;
+	}
     else
     {
         x264_log_internal( X264_LOG_ERROR, "invalid preset '%s'\n", preset );
@@ -1468,13 +1530,12 @@ char *x264_param2string( x264_param_t *p, int b_res )
     if (p->analyse.i_me_method == X264_ME_HEX)
     {
     s += sprintf( s, " dex=%d", p->i_dex );
-    } else
-    {}
+    }
     s += sprintf( s, " subme=%d", p->analyse.i_subpel_refine );
     s += sprintf( s, " psy=%d", p->analyse.b_psy );
     if( p->analyse.b_psy )
     {
-        s += sprintf(s, " fade_compensate=%.2f", p->rc.f_fade_compensate);
+        s += sprintf( s, " fade_compensate=%.2f", p->rc.f_fade_compensate );
         s += sprintf( s, " psy_rd=%.2f:%.2f", p->analyse.f_psy_rd, p->analyse.f_psy_trellis );
     }
     s += sprintf( s, " mixed_ref=%d", p->analyse.b_mixed_references );
@@ -1547,7 +1608,7 @@ char *x264_param2string( x264_param_t *p, int b_res )
             s += sprintf( s, " vbv_maxrate=%d vbv_bufsize=%d",
                           p->rc.i_vbv_max_bitrate, p->rc.i_vbv_buffer_size );
             if( p->rc.i_rc_method == X264_RC_CRF )
-                s += sprintf( s, " crf_max=%.1f", p->rc.f_rf_constant_max );
+                s += sprintf( s, " crf_max=%.3f", p->rc.f_rf_constant_max );
         }
     }
     else if( p->rc.i_rc_method == X264_RC_CQP )

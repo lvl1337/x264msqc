@@ -931,6 +931,7 @@ static int validate_parameters( x264_t *h, int b_open )
     if( b_open && (h->param.rc.i_rc_method == X264_RC_CQP || h->param.rc.i_rc_method == X264_RC_CRF)
         && h->param.rc.i_qp_constant == 0 )
     {
+		h->param.b_cabac = 1;
         h->mb.b_lossless = 1;
         h->param.i_cqm_preset = X264_CQM_FLAT;
         h->param.psz_cqm_file = NULL;
@@ -1213,6 +1214,8 @@ static int validate_parameters( x264_t *h, int b_open )
         h->param.rc.f_fade_compensate += 0.1;
     if (!h->param.rc.b_mb_tree)
         h->param.rc.f_fade_compensate = 0;
+	if (h->param.analyse.i_me_method == X264_ME_DIA || h->param.analyse.i_me_method == X264_ME_UMH || h->param.analyse.i_me_method == X264_ME_ESA || h->param.analyse.i_me_method == X264_ME_TESA)
+		h->param.i_dex = 0;
     if( !h->param.analyse.b_psy )
     {
         h->param.analyse.f_psy_rd = 0;

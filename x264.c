@@ -1044,6 +1044,7 @@ static struct option long_options[] =
     { "b-bias",               required_argument, NULL, 0 },
     { "b-pyramid",            required_argument, NULL, 0 },
     { "open-gop",             no_argument,       NULL, 0 },
+	{ "no-open-gop",             no_argument,       NULL, 0 },
     { "bluray-compat",        no_argument,       NULL, 0 },
     { "avcintra-class",       required_argument, NULL, 0 },
     { "avcintra-flavor",      required_argument, NULL, 0 },

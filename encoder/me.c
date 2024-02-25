@@ -363,8 +363,7 @@ void x264_me_search_ref( x264_t *h, x264_me_t *m, int16_t (*mvc)[2], int i_mvc, 
                     bcost &= ~15;
                 } while (--i && CHECK_MVRANGE(bmx, bmy));
                 bcost >>= 4;
-            } else
-            {}
+            }
     me_hex2:
             /* hexagon search, radius 2 */
     #if 0
